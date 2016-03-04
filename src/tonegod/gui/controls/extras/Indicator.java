@@ -249,6 +249,11 @@ public abstract class Indicator extends Element {
 		elIndicator.getElementMaterial().setColor("Color", this.indicatorColor);
 	}
 	
+	public ColorRGBA getIndicatorColor()
+	{
+		return indicatorColor;
+	}
+
 	/**
 	 * Set the maximum value (e.g. float  = 100%)
 	 * @param maxValue 

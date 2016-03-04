@@ -1,5 +1,22 @@
 package tonegod.gui.core;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import tonegod.gui.controls.extras.DragElement;
+import tonegod.gui.controls.form.Form;
+import tonegod.gui.core.layouts.Layout;
+import tonegod.gui.core.layouts.LayoutHints;
+import tonegod.gui.core.utils.UIDUtil;
+import tonegod.gui.effects.Effect;
+
 import com.jme3.app.Application;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -16,21 +33,6 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.texture.Texture;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import tonegod.gui.controls.extras.DragElement;
-import tonegod.gui.controls.form.Form;
-import tonegod.gui.core.layouts.Layout;
-import tonegod.gui.core.layouts.LayoutHints;
-import tonegod.gui.core.utils.UIDUtil;
-import tonegod.gui.effects.Effect;
 
 /**
  * <p>
@@ -356,7 +358,7 @@ public class Element extends Node {
 		child.elementParent = this;
 		
 		for (ClippingDefine def : clippingLayers) {
-			if (def.getClipping() == null) {
+			if (def.getClipping() != null) {
 			//	if (child.getX() >= 0 && child.getX()+child.getWidth() <= def.getElement().getWidth() &&
 			//		child.getY() >= 0 && child.getY()+child.getHeight() <= def.getElement().getHeight())
 						child.addClippingLayer(def.getElement());
@@ -1952,7 +1954,15 @@ public class Element extends Node {
 			textElement.setColor(fontColor);
 		}
 	}
-	
+
+	public void setFontColor(float r, float g, float b, float a)
+	{
+		this.fontColor = new ColorRGBA(r, g, b, a);
+		if (textElement != null) {
+			textElement.setColor(this.fontColor);
+		}
+	}
+
 	/**
 	 * Return the element's text layer font color
 	 * @return ColorRGBA fontColor
@@ -3360,4 +3370,42 @@ public class Element extends Node {
 		}
 	}
 	//</editor-fold>
+	
+	public ColorRGBA getColor()
+	{
+		return (ColorRGBA) mat.getParam("Color").getValue();
+	}
+	
+	public void setColor(ColorRGBA color)
+	{
+		mat.setColor("Color", color);
+	}
+
+	public void setColor(float r, float g, float b, float a)
+	{
+		mat.setColor("Color", new ColorRGBA(r, g, b, a));
+	}
+
+	private ColorRGBA activeFontColor = getFontColor();
+
+	public void setEnabled(boolean enable)
+	{
+		isEnabled = enable;
+		if (enable)
+		{
+			setIgnoreMouse(false);
+			setFontColor(activeFontColor);
+		}
+		else
+		{
+			activeFontColor = getFontColor();
+			setIgnoreMouse(true);
+			setFontColor(ColorRGBA.Gray);
+		}
+	}
+
+	public boolean isEnabled()
+	{
+		return isEnabled;
+	}
 }

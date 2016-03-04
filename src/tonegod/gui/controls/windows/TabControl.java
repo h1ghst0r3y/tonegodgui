@@ -166,6 +166,16 @@ public abstract class TabControl extends Element {
 		
 		configTabControl();
 	}
+
+	public void updateSelectedTab()
+	{
+		for (Button b : tabs) {
+			boolean isToggled = b.getIsToggled();
+			if(isToggled){
+				b.setZOrder(0.001f);
+			}
+		}
+	}
 	
 	private void configTabControl() {
 		if (orientation == Orientation.HORIZONTAL) {
@@ -200,6 +210,7 @@ public abstract class TabControl extends Element {
 							} else {
 								b.setWidth(tabWidth-tabTrayOverlap);
 							}
+							b.setIsToggled(false);
 						} else {
 							if (orientation == Orientation.HORIZONTAL) {
 								b.setHeight(tabHeight);
@@ -207,6 +218,7 @@ public abstract class TabControl extends Element {
 							} else {
 								b.setWidth(tabWidth);
 							}
+							b.setIsToggled(true);
 						}
 					}
 				}
@@ -218,6 +230,7 @@ public abstract class TabControl extends Element {
 				selectedPanel.show();
 				selectedTab.removeFromParent();
 				selectedTab.getElementParent().attachChild(selectedTab);
+				selectedTab.onButtonMouseLeftUp(null, true);
 				selectedPanel.hide();
 				selectedPanel.show();
 				onTabSelect(index);

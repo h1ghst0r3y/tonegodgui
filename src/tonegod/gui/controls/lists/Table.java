@@ -166,24 +166,24 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
 
     public enum SelectionMode {
 
-        NONE, ROW, MULTIPLE_ROWS, CELL, MULTIPLE_CELLS;
+        NONE, MOUSEOVER_ROW, ROW, MULTIPLE_ROWS, CELL, MULTIPLE_CELLS;
 
         public boolean isEnabled() {
             return !this.equals(NONE);
         }
 
         public boolean isSingle() {
-            return this.equals(ROW) || this.equals(CELL);
+            return this.equals(MOUSEOVER_ROW) || this.equals(ROW) || this.equals(CELL);
         }
 
         public boolean isMultiple() {
             return this.equals(MULTIPLE_CELLS) || this.equals(MULTIPLE_ROWS);
         }
     }
-    private List<TableRow> rows = new ArrayList();
-    private List<Integer> selectedRows = new ArrayList();
-    private Map<Integer, List<Integer>> selectedCells = new HashMap();
-    private List<Element> highlights = new ArrayList();
+    private List<TableRow> rows = new ArrayList<TableRow>();
+    private List<Integer> selectedRows = new ArrayList<Integer>();
+    private Map<Integer, List<Integer>> selectedCells = new HashMap<Integer, List<Integer>>();
+    private List<Element> highlights = new ArrayList<Element>();
     private SelectionMode selectionMode = SelectionMode.ROW;
     private float tablePadding = 1;
     private ColorRGBA highlightColor;
@@ -314,6 +314,14 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
             return toString().compareTo(o.toString());
         }
 
+        public Object getValue(){
+        	return value;
+        }
+
+        public void setValue(Object value){
+        	this.value = value;
+        }
+        
         private void removeExpanderButton() {
             if (expanderButton != null) {
                 removeChild(expanderButton);
@@ -631,11 +639,11 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
      */
     public void sort(TableColumn column, boolean ascending) {
         // Sort rows
-        final int columnIndex = columns.indexOf(column);
         selectedRows.clear();
         Collections.sort(rows, new Comparator<TableRow>() {
             @Override
             public int compare(TableRow o1, TableRow o2) {
+                final int columnIndex = columns.indexOf(column);
                 Element e1 = new ArrayList<Element>(o1.getElements()).get(columnIndex);
                 Element e2 = new ArrayList<Element>(o2.getElements()).get(columnIndex);
                 if (e1 instanceof Comparable) {
@@ -966,7 +974,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
         selectedRows.clear();
         selectedCells.clear();
         if (columnIndexes.length > 0) {
-            selectedCells.put(rowIndex, new ArrayList(Arrays.asList(columnIndexes)));
+            selectedCells.put(rowIndex, Arrays.asList(columnIndexes));
             selectedRows.add(rowIndex);
         }
         displayHighlights();
@@ -1178,7 +1186,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
      * @return List<ListItem>
      */
     public List<TableRow> getSelectedRows() {
-        List<TableRow> ret = new ArrayList();
+        List<TableRow> ret = new ArrayList<TableRow>();
         for (Integer i : selectedRows) {
             ret.add(getRow(i));
         }
@@ -1252,7 +1260,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                     highlight.setWidth(column.getWidth());
                     highlight.setHeight(rowHeight);
                     highlight.getElementMaterial().setColor("Color", highlightColor);
-                    highlight.setClippingLayer(clipLayer);
+                    highlight.addClippingLayer(clipLayer);
                     highlight.setPosition(column.getX() - tablePadding, y);
                     scrollableArea.addChild(highlight);
                     highlights.add(highlight);
@@ -1262,7 +1270,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                 highlight.setWidth(getWidth() - (tablePadding * 2));
                 highlight.setHeight(rowHeight);
                 highlight.getElementMaterial().setColor("Color", highlightColor);
-                highlight.setClippingLayer(clipLayer);
+                highlight.addClippingLayer(clipLayer);
                 highlight.setPosition(0, y);
                 scrollableArea.addChild(highlight);
                 highlights.add(highlight);
@@ -1312,6 +1320,13 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
         if (currentRowIndex != (int) Math.floor(y / rowHeight)) {
             currentRowIndex = (int) Math.floor(y / rowHeight);
         }
+        
+        if(SelectionMode.MOUSEOVER_ROW == selectionMode){
+            selectedRows.clear();
+            selectedRows.add(currentRowIndex);
+            selectedCells.clear();
+        	displayHighlights();
+        }
     }
 
     @Override
@@ -1345,6 +1360,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                     setSelectedRowIndex(currentRowIndex);
                 }
                 break;
+            case MOUSEOVER_ROW:
             case ROW:
                 if (currentRowIndex >= 0 && currentRowIndex < getAllRows().size()) {
                     setSelectedRowIndex(currentRowIndex);
@@ -1389,6 +1405,8 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                     selectedCells.clear();
                 }
                 break;
+            default:
+            	break;
         }
         evt.setConsumed();
     }
@@ -1399,7 +1417,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
     public void selectAll() {
         selectedCells.clear();
         selectedRows.clear();
-        List<Integer> l = new ArrayList();
+        List<Integer> l = new ArrayList<Integer>();
         for (int i = 0; i < rows.size(); i++) {
             l.add(i);
         }
@@ -1616,6 +1634,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
         int lastRow = Math.max(0, selectedRows.get(selectedRows.size() - 1));
         int newRow = Math.max(0, lastRow - 1);
         switch (selectionMode) {
+        	case MOUSEOVER_ROW:
             case ROW:
             case MULTIPLE_ROWS:
                 if (shift && selectionMode.equals(SelectionMode.MULTIPLE_ROWS)) {
@@ -1641,6 +1660,8 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                     setSelectedCellIndexes(newRow, selectedColumnIndexes.toArray(new Integer[0]));
                 }
                 break;
+            default:
+            	break;
         }
         return newRow;
     }
@@ -1648,6 +1669,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
     protected int selectDown(KeyInputEvent evt) {
         int newRow = -1;
         switch (selectionMode) {
+        	case MOUSEOVER_ROW:
             case ROW:
             case MULTIPLE_ROWS:
                 int selRow = getSelectedRowIndex();
@@ -1688,6 +1710,8 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                     setSelectedCellIndexes(newRow, selectedColumnIndexes.toArray(new Integer[0]));
                 }
                 break;
+            default:
+            	break;
         }
         return newRow;
     }
@@ -1695,6 +1719,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
     protected int selectRight(KeyInputEvent evt) {
         int newRow = -1;
         switch (selectionMode) {
+        	case MOUSEOVER_ROW:
             case ROW:
             case MULTIPLE_ROWS:
                 // Return now se we don't consume
@@ -1741,6 +1766,8 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                     setSelectedCellIndexes(0, 0);
                 }
                 break;
+            default:
+            	break;
         }
         return newRow;
     }
@@ -1748,6 +1775,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
     protected int selectLeft(KeyInputEvent evt) {
         int newRow = -1;
         switch (selectionMode) {
+        	case MOUSEOVER_ROW:
             case ROW:
             case MULTIPLE_ROWS:
                 // Return now se we don't consume
@@ -1796,6 +1824,8 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                     setSelectedCellIndexes(0, 0);
                 }
                 break;
+            default:
+            	break;
         }
         return newRow;
     }
@@ -1814,9 +1844,9 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
             scrollableArea.removeChild(h);
         }
         highlights.clear();
-        int index = 0;
+        
         float y = (headersVisible ? headerHeight : 0) + tablePadding;
-        for (TableRow mi : getAllRows()) {
+        for (int index = 0;index< getAllRows().size();index++) {
             List<Integer> cells = selectedCells.get(index);
             if (cells != null) {
                 for (Integer columnIndex : cells) {
@@ -1825,7 +1855,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                     highlight.setWidth(column.getWidth());
                     highlight.setHeight(rowHeight);
                     highlight.getElementMaterial().setColor("Color", highlightColor);
-                    highlight.setClippingLayer(clipLayer);
+                    highlight.addClippingLayer(clipLayer);
                     highlight.setPosition(column.getX() - tablePadding, y);
                     scrollableArea.addChild(highlight);
                     highlights.add(highlight);
@@ -1835,13 +1865,12 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
                 highlight.setWidth(getWidth() - (tablePadding * 2));
                 highlight.setHeight(rowHeight);
                 highlight.getElementMaterial().setColor("Color", highlightColor);
-                highlight.setClippingLayer(clipLayer);
+                highlight.addClippingLayer(clipLayer);
                 highlight.setPosition(0, y);
                 scrollableArea.addChild(highlight);
                 highlights.add(highlight);
             }
             y += rowHeight;
-            index++;
         }
     }
 
@@ -1885,7 +1914,7 @@ public abstract class Table extends ScrollArea implements MouseMovementListener,
     }
 
     private List<Integer> getAllColumnIndexes() {
-        List<Integer> l = new ArrayList();
+        List<Integer> l = new ArrayList<Integer>();
         for (int i = 0; i < columns.size(); i++) {
             l.add(i);
         }

@@ -7,7 +7,6 @@ package tonegod.gui.controls.lists;
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector4f;
 import java.util.ArrayList;
@@ -553,9 +552,9 @@ public abstract class ComboBox extends TextField {
 	 */
 	public void sortList() {
 		Object[] orgList = DDList.getMenuItems().toArray();
-		List<MenuItem> currentList = new ArrayList();
-		List<MenuItem> finalList = new ArrayList();
-		List<String> map = new ArrayList();
+		List<MenuItem> currentList = new ArrayList<>();
+		List<MenuItem> finalList = new ArrayList<>();
+		List<String> map = new ArrayList<>();
 		for (int i = 0; i < orgList.length; i++) {
 			currentList.add((MenuItem)orgList[i]);
 			map.add(((MenuItem)orgList[i]).getCaption());
@@ -584,9 +583,9 @@ public abstract class ComboBox extends TextField {
 	 */
 	public void sortListNumeric() {
 		Object[] orgList = DDList.getMenuItems().toArray();
-		List<MenuItem> currentList = new ArrayList();
-		List<MenuItem> finalList = new ArrayList();
-		List<Integer> map = new ArrayList();
+		List<MenuItem> currentList = new ArrayList<>();
+		List<MenuItem> finalList = new ArrayList<>();
+		List<Integer> map = new ArrayList<>();
 		for (int i = 0; i < orgList.length; i++) {
 			currentList.add((MenuItem)orgList[i]);
 			
@@ -646,6 +645,11 @@ public abstract class ComboBox extends TextField {
 		super.setIsEnabled(isEnabled);
 		selectEnabled = isEnabled;
 		this.btnArrowDown.setIsEnabled(isEnabled);
+	}
+	
+	public void setIsEditable(boolean isEditable) {
+		super.setIsEnabled(isEditable);
+		selectEnabled = isEditable;
 	}
 	
 	@Override

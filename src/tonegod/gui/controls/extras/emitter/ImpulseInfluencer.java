@@ -4,57 +4,69 @@
  */
 package tonegod.gui.controls.extras.emitter;
 
-import com.jme3.math.FastMath;
-import com.jme3.math.Vector2f;
 import tonegod.gui.controls.extras.emitter.ElementEmitter.ElementParticle;
 
+import com.jme3.math.FastMath;
+import com.jme3.math.Vector2f;
+
 /**
- *
+ * 
  * @author t0neg0d
  */
-public class ImpulseInfluencer extends InfluencerBase {
+public class ImpulseInfluencer extends InfluencerBase
+{
 	private boolean isEnabled = true;
 	private Vector2f temp = new Vector2f();
 	private Vector2f temp2 = new Vector2f();
 	private float variationStrength = 0.35f;
-	
-	public ImpulseInfluencer(ElementEmitter emitter) {
+
+	public ImpulseInfluencer(ElementEmitter emitter)
+	{
 		super(emitter);
 	}
-	
+
 	@Override
-	public void update(ElementParticle particle, float tpf) {
-		if (isEnabled) {
+	public void update(ElementParticle particle, float tpf)
+	{
+		if (isEnabled)
+		{
 			float incX = FastMath.nextRandomFloat();
-			if (FastMath.rand.nextBoolean()) incX = -incX;
+			if (FastMath.rand.nextBoolean())
+				incX = -incX;
 			float incY = FastMath.nextRandomFloat();
-			if (FastMath.rand.nextBoolean()) incY = -incY;
+			if (FastMath.rand.nextBoolean())
+				incY = -incY;
 			temp.set(particle.velocity).addLocal(incX, incY);
-			particle.velocity.interpolate(temp, (variationStrength));
+			particle.velocity.interpolateLocal(temp, (variationStrength));
 		}
 	}
 
 	@Override
-	public void initialize(ElementParticle particle) {
-		
+	public void initialize(ElementParticle particle)
+	{
+
 	}
 
 	@Override
-	public void setIsEnabled(boolean isEnabled) {
+	public void setIsEnabled(boolean isEnabled)
+	{
 		this.isEnabled = isEnabled;
 	}
 
 	@Override
-	public boolean getIsEnabled() {
+	public boolean getIsEnabled()
+	{
 		return this.isEnabled;
 	}
-	
-	public void setVariationStrength(float variationStrength) {
+
+	public void setVariationStrength(float variationStrength)
+	{
 		this.variationStrength = variationStrength;
 	}
-	
+
 	@Override
-	public ImpulseInfluencer clone() {
+	public ImpulseInfluencer clone()
+	{
 		ImpulseInfluencer clone = new ImpulseInfluencer(emitter);
 		clone.setVariationStrength(variationStrength);
 		clone.setIsEnabled(isEnabled);

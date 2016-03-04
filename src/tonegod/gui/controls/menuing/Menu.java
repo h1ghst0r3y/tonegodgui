@@ -4,15 +4,9 @@
  */
 package tonegod.gui.controls.menuing;
 
-import com.jme3.font.BitmapFont;
-import com.jme3.font.LineWrapMode;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector4f;
 import java.util.ArrayList;
 import java.util.List;
+
 import tonegod.gui.controls.buttons.CheckBox;
 import tonegod.gui.controls.scrolling.ScrollArea;
 import tonegod.gui.core.Element;
@@ -24,6 +18,14 @@ import tonegod.gui.effects.Effect;
 import tonegod.gui.listeners.MouseButtonListener;
 import tonegod.gui.listeners.MouseMovementListener;
 import tonegod.gui.listeners.MouseWheelListener;
+
+import com.jme3.font.BitmapFont;
+import com.jme3.font.LineWrapMode;
+import com.jme3.input.event.MouseButtonEvent;
+import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector4f;
 
 /**
  *
@@ -694,7 +696,7 @@ public abstract class Menu extends ScrollArea implements AutoHide, MouseMovement
 		}
 	}
 	
-	private void handleMenuItemClick(MenuItem menuItem, int menuItemIndex, Object value) {
+	protected void handleMenuItemClick(MenuItem menuItem, int menuItemIndex, Object value) {
 		if (menuItem.getIsToggleItem())
 			menuItem.setIsToggled(!menuItem.getIsToggled());
 		onMenuItemClicked(menuItemIndex, value, menuItem.getIsToggled());

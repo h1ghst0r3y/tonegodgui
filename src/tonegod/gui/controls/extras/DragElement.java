@@ -170,13 +170,23 @@ public abstract class DragElement extends Element implements MouseButtonListener
 	@Override
 	public void onMouseLeftReleased(MouseButtonEvent evt) {
 		Element dropEl = screen.getDropElement();
-		int index = -1;
+		Element previousDropEl = null;
+		
+		if (dropEl != null) {
+			previousDropEl = this.getParentDroppable();
+		}
 		
 		boolean success = onDragEnd(evt, dropEl);
 		
 		if (success) {
 			handleSuccess(dropEl);
 			centerToDropElement(dropEl);
+			if (dropEl != null && dropEl instanceof DropElement) {
+				if (previousDropEl != null && previousDropEl instanceof DropElement) {
+					((DropElement)previousDropEl).onDragLost(this, dropEl);
+				}
+				((DropElement)dropEl).onDragReceived(this, previousDropEl);
+			}
 		} else {
 			springBack();
 		}
@@ -200,7 +210,7 @@ public abstract class DragElement extends Element implements MouseButtonListener
 			nextY = -nextY;
 			setPosition(pos.x-dropEl.getAbsoluteX(), nextY);
 			dropEl.addChild(this);
-			this.setZOrder(screen.getZOrderStepMinor());
+			//this.setZOrder(screen.getZOrderStepMinor());
 		}
 	}
 	

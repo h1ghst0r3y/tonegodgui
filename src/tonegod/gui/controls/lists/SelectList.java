@@ -32,9 +32,8 @@ import tonegod.gui.listeners.TabFocusListener;
  * @author t0neg0d
  */
 public abstract class SelectList extends ScrollArea implements MouseMovementListener, MouseButtonListener, TabFocusListener, KeyboardListener {
-	private List<ListItem> listItems = new ArrayList();
-	private List<Integer> selectedIndexes = new ArrayList();
-	private List<Element> highlights = new ArrayList();
+	private List<ListItem> listItems = new ArrayList<>();
+	private List<Integer> selectedIndexes = new ArrayList<>();
 	
 	private boolean isMultiselect = false;
 	private float initWidth;
@@ -324,8 +323,9 @@ public abstract class SelectList extends ScrollArea implements MouseMovementList
 	}
 	
 	public void removeAllListItems() {
-		this.listItems = new ArrayList();
-		this.selectedIndexes = new ArrayList();
+		this.listItems.clear();
+		this.selectedIndexes.clear();
+		this.currentListItemIndex = -1;
 		pack();
 	}
 	
@@ -336,7 +336,7 @@ public abstract class SelectList extends ScrollArea implements MouseMovementList
 	public void setSelectedIndex(Integer index) {
 		if (index < 0) index = 0;
 		else if (index >= listItems.size()) index = listItems.size()-1;
-		selectedIndexes = new ArrayList();
+		selectedIndexes.clear();
 		selectedIndexes.add(index);
 		displayHighlights();
 		onChange();
@@ -442,7 +442,7 @@ public abstract class SelectList extends ScrollArea implements MouseMovementList
 	 * @return List<ListItem>
 	 */
 	public List<ListItem> getSelectedListItems() {
-		List<ListItem> ret = new ArrayList();
+		List<ListItem> ret = new ArrayList<>();
 		for (Integer i : selectedIndexes) {
 			ret.add(getListItem(i));
 		}
@@ -521,6 +521,7 @@ public abstract class SelectList extends ScrollArea implements MouseMovementList
 		scrollableArea.removeAllChildren();
 		int index = 0;
 		float currentHeight = 0;
+		
 		for (ListItem mi : listItems) {
 			if (selectedIndexes.contains(index)) {
 				Element highlight = createHighlight(index);
@@ -586,7 +587,7 @@ public abstract class SelectList extends ScrollArea implements MouseMovementList
 			if (currentListItemIndex >= 0 && currentListItemIndex < listItems.size())
 				setSelectedIndex(currentListItemIndex);
 			else
-				selectedIndexes = new ArrayList();
+				selectedIndexes.clear();
 		}
 		evt.setConsumed();
 	}

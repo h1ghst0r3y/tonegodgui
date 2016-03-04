@@ -33,7 +33,6 @@ import tonegod.gui.listeners.MouseButtonListener;
 import tonegod.gui.listeners.MouseFocusListener;
 import tonegod.gui.listeners.TabFocusListener;
 import tonegod.gui.style.Style;
-
 /**
  *
  * @author t0neg0d
@@ -867,11 +866,10 @@ public abstract class Button extends Element implements Control, MouseButtonList
 			removeEffect(Effect.EffectEvent.LoseTabFocus);
 		}
 
-	//	defaultSize = style.getVector2f(“defaultSize”);
+	//	defaultSize = style.getVector2f("defaultSize");
 		setDimensions(getOrgDimensions());
 		getModel().updateDimensions(getWidth(), getHeight());
 
-		// TODO
 		rebuildModel();
 		
 		originalFontColor = fontColor.clone();
@@ -884,5 +882,15 @@ public abstract class Button extends Element implements Control, MouseButtonList
 	private void centerTextVertically(String text) {
 		float height = BitmapTextUtil.getTextLineHeight(this, text);
 		setTextPosition(getTextPosition().x, getHeight()/2-((height-(height*.1f))/2));
+	}
+	
+	@Override
+	public void setColor(float r, float g, float b, float a)
+	{
+		super.setColor(r, g, b, a);
+		if (icon != null)
+		{
+			icon.setColor(r, g, b, a);
+		}
 	}
 }

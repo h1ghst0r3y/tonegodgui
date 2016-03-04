@@ -410,7 +410,7 @@ public class VScrollBar extends Element {
 			}
 		}
 	}
-	
+
 	/**
 	 * Moves the scroll bar thumb relative to the scroll area position
 	 */
@@ -426,4 +426,12 @@ public class VScrollBar extends Element {
 		btnScrollThumb.setY(yLoc);
 	}
 	
+	@Override
+	public void setColor(float r, float g, float b, float a)
+	{
+		btnScrollDown.setColor(r, g, b, a);
+		btnScrollUp.setColor(r, g, b, a);
+		btnScrollTrack.setColor(r, g, b, a);
+		btnScrollThumb.setColor(r, g, b, a);
+	}
 }

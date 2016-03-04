@@ -1,9 +1,11 @@
 package tonegod.gui.core;
 
+import special.Debug;
 import tonegod.gui.style.StyleManager;
 import tonegod.gui.style.LayoutParser;
 import tonegod.gui.style.Style;
 import tonegod.gui.style.StyleLoader;
+
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.audio.AudioNode;
@@ -39,6 +41,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
 import com.jme3.texture.Texture;
 import com.jme3.util.SafeArrayList;
+
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -54,6 +57,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import tonegod.gui.controls.extras.android.Keyboard;
 import tonegod.gui.controls.form.Form;
 import tonegod.gui.controls.lists.ComboBox;
@@ -154,7 +158,7 @@ public class Screen implements ElementManager, Control, RawInputListener {
 	private CursorType currentCursor = CursorType.POINTER;
 	
 	private boolean useToolTips = false;
-	private ToolTip toolTip = null;
+	private Element toolTip = null;
 	private float toolTipMaxWidth = 250;
 	private String forcedToolTipText = "";
 	private boolean forcedToolTip = false;
@@ -1524,7 +1528,7 @@ public class Screen implements ElementManager, Control, RawInputListener {
 	 * @return Element eventElement
 	 */
 	private Element getEventElement(float x, float y, EventCheckType check) {
-		guiRayOrigin.set(x, y, 0f);
+		guiRayOrigin.set(x, y, 0);
 		
 		elementZOrderRay.setOrigin(guiRayOrigin);
 		results.clear();
@@ -1554,6 +1558,11 @@ public class Screen implements ElementManager, Control, RawInputListener {
 			if (!discard) {
 				if (result.getGeometry().getParent() instanceof Element) {
 					el = testEl;
+					if(Debug.DEBUG){ // colors mouseover elements and clicked elements - really helpful when debugging shitty tonegod!
+						el.setColor(0, 1, 0, 0.5f);
+						System.out.println(el.getName());
+						System.out.println(el.getText());
+					}
 				}
 			}
 		}
@@ -1843,10 +1852,11 @@ public class Screen implements ElementManager, Control, RawInputListener {
 		try {
 			clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			StringSelection stringSelection = new StringSelection( text );
-		//	clipboard.setContents(stringSelection, this);
+			clipboard.setContents(stringSelection, stringSelection);
 		} catch (Exception ex) {
 			this.clipboardText = text;
 		}
+		this.clipboardText = text;
 	}
 	
 	/**
@@ -2417,7 +2427,31 @@ public class Screen implements ElementManager, Control, RawInputListener {
 	public boolean getUseToolTips() {
 		return useToolTips;
 	}
+
+//	private boolean useTextToolTips = true;
+//	
+//	public void setUseTextToolTips(boolean useTextToolTips) {
+//		this.useTextToolTips = useTextToolTips;
+//		updateToolTipLocation();
+//	}
+//	
+//	public boolean getUseTextToolTips() {
+//		return useTextToolTips;
+//	}
 	
+	public void setToolTip(Element newToolTip){
+		if(toolTip!=null){
+			this.toolTip.hide();
+			removeElement(toolTip);
+		}
+		this.toolTip = newToolTip;
+		addElement(toolTip);
+		this.toolTip.hide();
+	}
+	
+	public Element getToolTip(){
+		return this.toolTip;
+	}
 	/**
 	 * For internal use only - DO NOT CALL THIS METHOD
 	 */
@@ -2427,49 +2461,54 @@ public class Screen implements ElementManager, Control, RawInputListener {
 			/*
 			 * Initialize the global tool tip on first invocation.
 			 */
-			toolTip = new ToolTip(this, "GlobalToolTip", new Vector2f(0, 0), new Vector2f(200, 50));
-			toolTip.setIgnoreGlobalAlpha(true);
-			toolTip.setIsGlobalModal(true);
-			toolTip.setText("");
-			toolTip.setTextPadding(2);
-			toolTip.setTextPosition(0, 0);
-			toolTip.hide();
-			addElement(toolTip);
-			toolTip.move(0, 0, 20);
-		}
-		/*
-		 * Determine what text (if any) the tool tip should display.
-		 */
-		String newText = null;
-		if (useToolTips && getApplication().getInputManager().isCursorVisible()) {
-			if (mouseFocusElement != null) {
-				newText = mouseFocusElement.getToolTipText();
-			} else {
-				newText = forcedToolTipText;
-			}
-		}
-
-		if (newText == null || newText.isEmpty()) {
-			/*
-			 * Clear and hide the old tool tip.
-			 */
-			toolTip.setText("");
-			toolTip.hide();
+//			toolTip = new ToolTip(this, "GlobalToolTip", new Vector2f(0, 0), new Vector2f(200, 50));
+//			toolTip.setIgnoreGlobalAlpha(true);
+//			toolTip.setIsGlobalModal(true);
+//			toolTip.setText("");
+//			toolTip.setTextPadding(2);
+//			toolTip.setTextPosition(0, 0);
+//			toolTip.hide();
+//			addElement(toolTip);
+//			toolTip.move(0, 0, 20);
 			return;
 		}
 		
-		String oldText = toolTip.getText();
-		if (!oldText.equals(newText)) {
+		if(toolTip instanceof ToolTip)
+		{
 			/*
-			 * Change the tool tip text and resize the tool tip.
+			 * Determine what text (if any) the tool tip should display.
 			 */
-			toolTip.setText("");
-			toolTip.setHeight(25);
-			float finalWidth = BitmapTextUtil.getTextWidth(toolTip, newText, toolTipMaxWidth);
-			toolTip.setText(newText);
-			toolTip.setWidth(finalWidth + (toolTip.getTextPadding() * 12));
-			toolTip.setHeight(toolTip.getTextElement().getHeight() + (toolTip.getTextPadding() * 12));
-			toolTip.getTextElement().setBox(new Rectangle(0, 0, toolTip.getWidth() - (toolTip.getTextPadding() * 2), toolTip.getHeight() - (toolTip.getTextPadding() * 2)));
+			String newText = null;
+			if (useToolTips && getApplication().getInputManager().isCursorVisible()) {
+				if (mouseFocusElement != null) {
+					newText = mouseFocusElement.getToolTipText();
+				} else {
+					newText = forcedToolTipText;
+				}
+			}
+	
+			if (newText == null || newText.isEmpty()) {
+				/*
+				 * Clear and hide the old tool tip.
+				 */
+				toolTip.setText("");
+				toolTip.hide();
+				return;
+			}
+			
+			String oldText = toolTip.getText();
+			if (!oldText.equals(newText)) {
+				/*
+				 * Change the tool tip text and resize the tool tip.
+				 */
+				toolTip.setText("");
+				toolTip.setHeight(25);
+				float finalWidth = BitmapTextUtil.getTextWidth(toolTip, newText, toolTipMaxWidth);
+				toolTip.setText(newText);
+				toolTip.setWidth(finalWidth + (toolTip.getTextPadding() * 12));
+				toolTip.setHeight(toolTip.getTextElement().getHeight() + (toolTip.getTextPadding() * 12));
+				toolTip.getTextElement().setBox(new Rectangle(0, 0, toolTip.getWidth() - (toolTip.getTextPadding() * 2), toolTip.getHeight() - (toolTip.getTextPadding() * 2)));
+			}
 		}
 
 		setToolTipLocation();
@@ -2816,4 +2855,16 @@ public class Screen implements ElementManager, Control, RawInputListener {
 			return null;
 	}
 	//</editor-fold>
+	
+	/**
+	 * Sets the Tooltips zOrder.
+	 * 
+	 * @param zOrder
+	 */
+	public void setZOrderTooltip(float zOrder)
+	{
+		if(toolTip!=null){
+			toolTip.setZOrder(zOrder);
+		}
+	}
 }

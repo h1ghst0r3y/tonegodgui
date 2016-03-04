@@ -4,9 +4,10 @@
  */
 package tonegod.gui.controls.extras.emitter;
 
-import com.jme3.math.ColorRGBA;
 import tonegod.gui.controls.extras.emitter.ElementEmitter.ElementParticle;
 import tonegod.gui.framework.animation.Interpolation;
+
+import com.jme3.math.ColorRGBA;
 
 /**
  *
@@ -25,7 +26,7 @@ public class ColorInfluencer extends InfluencerBase {
 	@Override
 	public void update(ElementParticle particle, float tpf) {
 		if (isEnabled) {
-			particle.color.interpolate(startColor, endColor, interpolation.apply(particle.blend));
+			particle.color.interpolateLocal(startColor, endColor, interpolation.apply(particle.blend));
 		}
 	}
 
